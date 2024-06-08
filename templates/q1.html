@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale-1.0">
         <title>한국 음악 데이터 분석</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
     </head>
 
     <body>
@@ -9,8 +13,10 @@
             <h1>시대별 가사에서 많이 나오는 단어</h1>
         </main>
 
-        <a href="/q10">Q10: 걸그룹 이름 글자 수에 따른 전체 좋아요 개수</a>
-        <a href="/">목록</a>
-        <a href="/q2">Q2: 시대에 따른 장르별 가사 변화</a>
+        <div class="navbar">
+            <a href="/q10">Q10: 걸그룹 이름 글자 수에 따른 전체 좋아요 개수</a>
+            <a href="/">목록</a>
+            <a href="/q2">Q2: 시대에 따른 장르별 가사 변화</a>
+        </div>
     </body>
 </html>

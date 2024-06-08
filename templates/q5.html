@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale-1.0">
         <title>한국 음악 데이터 분석</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
     </head>
 
     <body>
@@ -9,8 +13,10 @@
             <h1>노래 한 곡의 가사(단어) 양 변화 (장르별, 시대별)</h1>
         </main>
 
-        <a href="/q4">Q4: 솔로 / 듀오 / 그룹 가수 형태에 따른 노래 비율</a>
-        <a href="/">목록</a>
-        <a href="/q6">Q6: 소속사별 가사 특성 (키워드)</a>
+        <div class="navbar">
+            <a href="/q4">Q4: 솔로 / 듀오 / 그룹 가수 형태에 따른 노래 비율</a>
+            <a href="/">목록</a>
+            <a href="/q6">Q6: 소속사별 가사 특성 (키워드)</a>
+        </div>
     </body>
 </html>
