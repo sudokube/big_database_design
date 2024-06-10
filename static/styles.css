@@ -12,6 +12,12 @@ h1 {
     text-align: center;
 }
 
+.wordcloud {
+    width: 300px;
+    height: auto;
+    text-align: center;
+}
+
 .navbar {
     background-color: #333;
     position: fixed;

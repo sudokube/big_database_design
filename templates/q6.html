@@ -13,6 +13,15 @@
             <h1>소속사별 가사 특성 (키워드)</h1>
         </main>
 
+        <div id="chart">{{ plot_html | safe }}</div>
+
+        {% for image in wordcloud %}
+            <img src="{{ image }}" alt="Word Cloud {{ loop.index }}" class="wordcloud">
+            <div>{{ image }}</div>
+            <div></div>
+            <div></div>
+        {% endfor %}
+
         <div class="navbar">
             <a href="/q5">Q5: 노래 한 곡의 가사(단어) 양 변화 (장르별, 시대별)</a>
             <a href="/">목록</a>
