@@ -385,7 +385,7 @@ def q3():
     # Generage the HTML for the plot
     genre = pio.to_html(fig, full_html=False)
 
-    return render_template('q3.html', plot_html=age, plot_html2=year, plot_html3=genre)
+    return render_template('q3.html', plot_html1=age, plot_html2=year, plot_html3=genre)
 
 @app.route("/q4")
 def q4():
