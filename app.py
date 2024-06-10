@@ -9,15 +9,16 @@ from pipeline import query_1, query_2, query_3age, query_3year, query_3genre, qu
 from wordcloud import WordCloud
 import pandas as pd
 import plotly.colors as colors
+import plotly.express as px
 
 # MongoDB 서버에 연결
 client = MongoClient('mongodb://localhost:27017/')
 
 # 데이터베이스 선택
-db = client['music']
+db = client['big']
 
 # 컬렉션 선택
-collection = db['musics']
+collection = db['music']
 
 app = Flask(__name__)
 
@@ -777,4 +778,20 @@ def q9():
     # Generage the HTML for the plot
     plot_html = pio.to_html(fig, full_html=False)
 
-    return render_template('q9.html', plot_html=plot_html)
+
+    values_for_pie = []
+
+    for classname in class_list:
+        subgroups = groups[groups['class'] == classname[0]]
+        values_for_pie.append((subgroups['like'] >= 100000).value_counts()[1] if len((subgroups['like'] >= 100000).value_counts()) > 1 else 0)
+
+    fig = px.pie(values=values_for_pie, names=['두 글자 (10만 이상)', '세 글자 (10만 이상)', '네 글자 (10만 이상)',
+                                            '다섯 글자 (10만 이상)', '여섯 글자 이상 (10만 이상)'],
+                title="누적 10만 좋아요 달성 걸그룹 중 이름 글자 수 비율", width=1100, height=600)
+    fig.update_traces(textposition='outside',textinfo='label+percent', textfont_size=12, textfont_color="black")
+    fig.update_traces(sort=False)
+
+    plot_html2 = pio.to_html(fig, full_html=False)
+
+
+    return render_template('q9.html', plot_html=plot_html, plot_html2=plot_html2)
