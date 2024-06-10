@@ -2,6 +2,7 @@ body {
     display: flex;
     flex-direction: column;
     min-width: 100vh;
+    font-family: Noto Sans KR, Apple SD Gothic Neo, Malgun Gothic, sans-serif;
 }
 
 main {
@@ -37,4 +38,28 @@ h1 {
 .navbar a:hover {
     background-color: #ddd;
     color: black;
+}
+
+.genre-menu {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+.genre-menu a {
+    padding: 10px;
+    margin: 0 10px;
+    text-decoration: none;
+    color: black;
+    border: 1px solid black;
+}
+.genre-menu a:hover {
+    background-color: #ddd;
+}
+
+.wordcloud-warp {
+    display: flex;
+    align-self: center;
+    gap: 30px;
+    margin-bottom: 20px;
+    margin-bottom: 120px;
 }

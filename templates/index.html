@@ -2,6 +2,8 @@
 <html lang="ko">
     <head>
         <title>빅데이터시스템설계 6팀</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
+        <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,700&amp;display=swap" rel="stylesheet">
     </head>
 
     <body>
@@ -11,7 +13,7 @@
 
         <ol>
             <li><a href="/q1">시대별 가사에서 많이 나오는 단어</a></li>
-            <li><a href="/q2">시대에 따른 장르별 가사 변화</a></li>
+            <li><a href="/q2?genre=GN0100">시대에 따른 장르별 가사 변화</a></li>
             <li><a href="/q3">(연도별 장르별 나이별) 노래 가사의 한국어 / 영어 비율</a></li>
             <li><a href="/q4">솔로 / 듀오 / 그룹 가수 형태에 따른 노래 비율</a></li>
             <li><a href="/q5">노래 한 곡의 가사(단어) 양 변화 (장르별, 시대별)</a></li>
