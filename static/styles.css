@@ -34,7 +34,8 @@ h1 {
     padding: 14px 20px;
     color: white;
     text-decoration: none;
-    margin: 0 10px
+    margin: 0 10px;
+    flex: 1;
 }
 
 .navbar a:hover {
