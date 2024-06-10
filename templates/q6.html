@@ -6,6 +6,7 @@
         <title>시대별 가사에서 많이 나오는 단어</title>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
+        <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,700&amp;display=swap" rel="stylesheet">
     </head>
 
     <body>
@@ -15,12 +16,12 @@
 
         <div id="chart">{{ plot_html | safe }}</div>
 
-        {% for image in wordcloud %}
-            <img src="{{ image }}" alt="Word Cloud {{ loop.index }}" class="wordcloud">
-            <div>{{ image }}</div>
-            <div></div>
-            <div></div>
-        {% endfor %}
+        <div class="wordcloud">
+            {% for image in wordcloud %}
+                <img src="{{ image }}" alt="Word Cloud {{ loop.index }}" class="wordcloud">
+                <div>{{ image }}</div>
+            {% endfor %}
+        </div>
 
         <div class="navbar">
             <a href="/q5">Q5: 노래 한 곡의 가사(단어) 양 변화 (장르별, 시대별)</a>

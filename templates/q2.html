@@ -6,6 +6,7 @@
         <title>한국 음악 데이터 분석</title>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
+        <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,700&amp;display=swap" rel="stylesheet">
     </head>
 
     <body>
@@ -13,12 +14,16 @@
             <h1>시대에 따른 장르별 가사 변화</h1>
         </main>
 
-        <div id="chart">{{ plot_html1 | safe }}</div>
-        <div id="chart">{{ plot_html2 | safe }}</div>
-        <div id="chart">{{ plot_html3 | safe }}</div>
-        <div id="chart">{{ plot_html4 | safe }}</div>
-        <div id="chart">{{ plot_html5 | safe }}</div>
-        <div id="chart">{{ plot_html6 | safe }}</div>
+        <div class="genre-menu">
+            <a href="/q2?genre=GN0100">발라드</a>
+            <a href="/q2?genre=GN0200">댄스</a>
+            <a href="/q2?genre=GN0300">랩/힙합</a>
+            <a href="/q2?genre=GN0400">R&B</a>
+            <a href="/q2?genre=GN0500">인디뮤직</a>
+            <a href="/q2?genre=GN0800">포크/블루스</a>
+        </div>
+
+        <div id="chart" style="margin-bottom: 40px;">{{ plot_html | safe }}</div>
 
         <div class="navbar">
             <a href="/q1">Q1: 시대별 가사에서 많이 나오는 단어</a>

@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import request
 from flask import render_template
 import plotly.graph_objs as go
 import plotly.io as pio
@@ -12,10 +13,10 @@ import pandas as pd
 client = MongoClient('mongodb://localhost:27017/')
 
 # 데이터베이스 선택
-db = client['big']
+db = client['music']
 
 # 컬렉션 선택
-collection = db['music']
+collection = db['musics']
 
 app = Flask(__name__)
 
@@ -153,24 +154,38 @@ def q1():
 
 @app.route("/q2")
 def q2():
-    # Ballad
-    cursor = [[] for _ in range(9)]
-    result = [[] for _ in range(9)]
 
-    for index in range(9):
-        cursor[index] = query_2(collection, 'GN0100', 2016 + index, 'Noun')
+    genre = request.args.get('genre')
+    # 장르 코드를 query parameter로 받아옴
+    # Ballad : GN0100, Dance : GN0200, Hiphop : GN0300, R&B : GN0400, Indie : GN0500, Folk : GN0800
+
+    if genre == None or genre.startswith('GN') == False:
+        genre = 'GN0100'
+
+    # 장르에 따라서 범위를 다르게 지정
+    SIZE = 9
+    if genre == 'GN0400':
+        SIZE = 6
+    elif genre == 'GN0500':
+        SIZE = 5
+
+    cursor = [[] for _ in range(SIZE)]
+    result = [[] for _ in range(SIZE)]
+
+    for index in range(SIZE):
+        cursor[index] = query_2(collection, genre, 2024+1- SIZE + index, 'Noun')
         result[index] = list(cursor[index])
 
     ranked_words = dict()
     ranked_words_cnt = dict()
-    for idx in range(9):
+    for idx in range(SIZE):
         for word in result[idx]:
             ranked_words[word['_id']] = list()
             ranked_words_cnt[word['_id']] = list()
 
     for word in ranked_words:
         labeled = False
-        for idx in range(9):
+        for idx in range(SIZE):
             rank = next((i for i, d in enumerate(result[idx]) if d['_id'] == word), None)
             ranked_words[word].append(rank+1 if rank != None else None)
             if not labeled:
@@ -180,10 +195,23 @@ def q2():
             else:
                 ranked_words_cnt[word].append(str(result[idx][rank]['cnt']) if rank != None else None)
 
-    x = np.arange(2016, 2025)
+    x = np.arange(2024+1-SIZE, 2025)
 
-    # Figure  생성
-    fig = go.Figure(layout=go.Layout(title=go.layout.Title(text="시대별 가사에 많이 나온 단어 변화(발라드, 명사)")))
+    # 장르 한글 문자열
+    genre_name = '발라드'
+    if genre == 'GN0200':
+        genre_name = '댄스'
+    elif genre == 'GN0300':
+        genre_name = '랩/힙합'
+    elif genre == 'GN0400':
+        genre_name = 'R&B'
+    elif genre == 'GN0500':
+        genre_name = '인디음악'
+    elif genre == 'GN0800':
+        genre_name = '포크/블루스'
+
+    # Figure 생성
+    fig = go.Figure(layout=go.Layout(title=go.layout.Title(text="시대별 가사에 많이 나온 단어 변화(" + genre_name + ", 명사)")))
     fig.update_layout(title_x = 0.5, title_y = 0.9, title_xanchor = "center", title_yanchor = "middle", title_font_size = 24)
     fig.update_layout(height=800)
     fig.update_layout(
@@ -212,319 +240,9 @@ def q2():
                                 text=ranked_words_cnt[word], textposition='top center'))
     
     # Generage the HTML for the plot
-    ballad = pio.to_html(fig, full_html=False)
+    plot_html = pio.to_html(fig, full_html=False)
 
-
-    # Dance
-    cursor = [[] for _ in range(9)]
-    result = [[] for _ in range(9)]
-
-    for index in range(9):
-        cursor[index] = query_2(collection, 'GN0200', 2016 + index, 'Noun')
-        result[index] = list(cursor[index])
-
-    ranked_words = dict()
-    ranked_words_cnt = dict()
-    for idx in range(9):
-        for word in result[idx]:
-            ranked_words[word['_id']] = list()
-            ranked_words_cnt[word['_id']] = list()
-
-    for word in ranked_words:
-        labeled = False
-        for idx in range(9):
-            rank = next((i for i, d in enumerate(result[idx]) if d['_id'] == word), None)
-            ranked_words[word].append(rank+1 if rank != None else None)
-            if not labeled:
-                if rank != None:
-                    labeled = True
-                ranked_words_cnt[word].append(word + ' (' + str(result[idx][rank]['cnt']) + ')' if rank != None else None)
-            else:
-                ranked_words_cnt[word].append(str(result[idx][rank]['cnt']) if rank != None else None)
-
-    x = np.arange(2016, 2025)
-
-    # Figure  생성
-    fig = go.Figure(layout=go.Layout(title=go.layout.Title(text="시대별 가사에 많이 나온 단어 변화(댄스, 명사)")))
-    fig.update_layout(title_x = 0.5, title_y = 0.9, title_xanchor = "center", title_yanchor = "middle", title_font_size = 24)
-    fig.update_layout(height=800)
-    fig.update_layout(
-        yaxis = dict(autorange="reversed")
-    )
-
-    fig.update_layout(
-        yaxis = dict(
-            tickmode = 'array',
-            tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            ticktext = ['1위', '2위', '3위', '4위', '5위', '6위', '7위', '8위', '9위', '10위']
-        )
-    )
-    fig.update_xaxes(title_text='노래의 발매 연도')
-    fig.update_yaxes(title_text='많이 나온 단어 순위')
-
-    fig.update_layout(
-        font=dict(size=12),
-        legend=dict(font=dict(size = 16))
-    )
-
-    # Line Trace 추가
-    for word in ranked_words.keys():
-        fig.add_trace(go.Scatter(x=x, y=ranked_words[word], name=word,
-                                mode='lines+markers+text', line_shape='spline',
-                                text=ranked_words_cnt[word], textposition='top center'))
-        
-    # Generage the HTML for the plot
-    dance = pio.to_html(fig, full_html=False)
-
-    ## hiphop ##
-    cursor = [[] for _ in range(9)]
-    result = [[] for _ in range(9)]
-
-    for index in range(9):
-        cursor[index] = query_2(collection, 'GN0300', 2016 + index, 'Noun')
-        result[index] = list(cursor[index])
-
-    ranked_words = dict()
-    ranked_words_cnt = dict()
-    for idx in range(9):
-        for word in result[idx]:
-            ranked_words[word['_id']] = list()
-            ranked_words_cnt[word['_id']] = list()
-
-    for word in ranked_words:
-        labeled = False
-        for idx in range(9):
-            rank = next((i for i, d in enumerate(result[idx]) if d['_id'] == word), None)
-            ranked_words[word].append(rank+1 if rank != None else None)
-            if not labeled:
-                if rank != None:
-                    labeled = True
-                ranked_words_cnt[word].append(word + ' (' + str(result[idx][rank]['cnt']) + ')' if rank != None else None)
-            else:
-                ranked_words_cnt[word].append(str(result[idx][rank]['cnt']) if rank != None else None)
-
-    x = np.arange(2016, 2025)
-
-    # Figure  생성
-    fig = go.Figure(layout=go.Layout(title=go.layout.Title(text="시대별 가사에 많이 나온 단어 변화(랩/힙합, 명사)")))
-    fig.update_layout(title_x = 0.5, title_y = 0.9, title_xanchor = "center", title_yanchor = "middle", title_font_size = 24)
-    fig.update_layout(height=800)
-    fig.update_layout(
-        yaxis = dict(autorange="reversed")
-    )
-
-    fig.update_layout(
-        yaxis = dict(
-            tickmode = 'array',
-            tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            ticktext = ['1위', '2위', '3위', '4위', '5위', '6위', '7위', '8위', '9위', '10위']
-        )
-    )
-    fig.update_xaxes(title_text='노래의 발매 연도')
-    fig.update_yaxes(title_text='많이 나온 단어 순위')
-
-    fig.update_layout(
-        font=dict(size=12),
-        legend=dict(font=dict(size = 16))
-    )
-
-    # Line Trace 추가
-    for word in ranked_words.keys():
-        fig.add_trace(go.Scatter(x=x, y=ranked_words[word], name=word,
-                                mode='lines+markers+text', line_shape='spline',
-                                text=ranked_words_cnt[word], textposition='top center'))
-        
-    # Generage the HTML for the plot
-    hiphop = pio.to_html(fig, full_html=False)
-
-    ## R&B ##
-
-    cursor = [[] for _ in range(9)]
-    result = [[] for _ in range(9)]
-
-    for index in range(9):
-        cursor[index] = query_2(collection, 'GN0400', 2016 + index, 'Noun')
-        result[index] = list(cursor[index])
-
-    ranked_words = dict()
-    ranked_words_cnt = dict()
-    for idx in range(6):
-        for word in result[idx]:
-            ranked_words[word['_id']] = list()
-            ranked_words_cnt[word['_id']] = list()
-
-    for word in ranked_words:
-        labeled = False
-        for idx in range(6):
-            rank = next((i for i, d in enumerate(result[idx]) if d['_id'] == word), None)
-            ranked_words[word].append(rank+1 if rank != None else None)
-            if not labeled:
-                if rank != None:
-                    labeled = True
-                ranked_words_cnt[word].append(word + ' (' + str(result[idx][rank]['cnt']) + ')' if rank != None else None)
-            else:
-                ranked_words_cnt[word].append(str(result[idx][rank]['cnt']) if rank != None else None)
-
-    x = np.arange(2019, 2025)
-
-    # Figure  생성
-    fig = go.Figure(layout=go.Layout(title=go.layout.Title(text="시대별 가사에 많이 나온 단어 변화(R&B, 명사)")))
-    fig.update_layout(title_x = 0.5, title_y = 0.9, title_xanchor = "center", title_yanchor = "middle", title_font_size = 24)
-    fig.update_layout(height=800)
-    fig.update_layout(
-        yaxis = dict(autorange="reversed")
-    )
-
-    fig.update_layout(
-        yaxis = dict(
-            tickmode = 'array',
-            tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            ticktext = ['1위', '2위', '3위', '4위', '5위', '6위', '7위', '8위', '9위', '10위']
-        )
-    )
-    fig.update_xaxes(title_text='노래의 발매 연도')
-    fig.update_yaxes(title_text='많이 나온 단어 순위')
-
-    fig.update_layout(
-        font=dict(size=12),
-        legend=dict(font=dict(size = 16))
-    )
-
-    # Line Trace 추가
-    for word in ranked_words.keys():
-        fig.add_trace(go.Scatter(x=x, y=ranked_words[word], name=word,
-                                mode='lines+markers+text', line_shape='spline',
-                                text=ranked_words_cnt[word], textposition='top center'))
-
-        
-    # Generage the HTML for the plot
-    rb = pio.to_html(fig, full_html=False)
-
-
-    ## Indie ##
-    cursor = [[] for _ in range(9)]
-    result = [[] for _ in range(9)]
-
-    for index in range(9):
-        cursor[index] = query_2(collection, 'GN0500', 2016 + index, 'Noun')
-        result[index] = list(cursor[index])
-
-    ranked_words = dict()
-    ranked_words_cnt = dict()
-    for idx in range(5):
-        for word in result[idx]:
-            ranked_words[word['_id']] = list()
-            ranked_words_cnt[word['_id']] = list()
-
-
-    for word in ranked_words:
-        labeled = False
-        for idx in range(9):
-            rank = next((i for i, d in enumerate(result[idx]) if d['_id'] == word), None)
-            ranked_words[word].append(rank+1 if rank != None else None)
-            if not labeled:
-                if rank != None:
-                    labeled = True
-                ranked_words_cnt[word].append(word + ' (' + str(result[idx][rank]['cnt']) + ')' if rank != None else None)
-            else:
-                ranked_words_cnt[word].append(str(result[idx][rank]['cnt']) if rank != None else None)
-
-    x = np.arange(2020, 2025)
-
-    # Figure  생성
-    fig = go.Figure(layout=go.Layout(title=go.layout.Title(text="시대별 가사에 많이 나온 단어 변화(인디음악, 명사)")))
-    fig.update_layout(title_x = 0.5, title_y = 0.9, title_xanchor = "center", title_yanchor = "middle", title_font_size = 24)
-    fig.update_layout(height=800)
-    fig.update_layout(
-        yaxis = dict(autorange="reversed")
-    )
-
-    fig.update_layout(
-        yaxis = dict(
-            tickmode = 'array',
-            tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            ticktext = ['1위', '2위', '3위', '4위', '5위', '6위', '7위', '8위', '9위', '10위']
-        )
-    )
-    fig.update_xaxes(title_text='노래의 발매 연도')
-    fig.update_yaxes(title_text='많이 나온 단어 순위')
-
-    fig.update_layout(
-        font=dict(size=12),
-        legend=dict(font=dict(size = 16))
-    )
-
-    # Line Trace 추가
-    for word in ranked_words.keys():
-        fig.add_trace(go.Scatter(x=x, y=ranked_words[word], name=word,
-                                mode='lines+markers+text', line_shape='spline',
-                                text=ranked_words_cnt[word], textposition='top center'))
-
-    # Generage the HTML for the plot
-    indie = pio.to_html(fig, full_html=False)
-
-    # folk
-    cursor = [[] for _ in range(9)]
-    result = [[] for _ in range(9)]
-
-    for index in range(9):
-        cursor[index] = query_2(collection, 'GN0800', 2016 + index, 'Noun')
-        result[index] = list(cursor[index])
-
-    ranked_words = dict()
-    ranked_words_cnt = dict()
-    for idx in range(9):
-        for word in result[idx]:
-            ranked_words[word['_id']] = list()
-            ranked_words_cnt[word['_id']] = list()
-
-    for word in ranked_words:
-        labeled = False
-        for idx in range(9):
-            rank = next((i for i, d in enumerate(result[idx]) if d['_id'] == word), None)
-            ranked_words[word].append(rank+1 if rank != None else None)
-            if not labeled:
-                if rank != None:
-                    labeled = True
-                ranked_words_cnt[word].append(word + ' (' + str(result[idx][rank]['cnt']) + ')' if rank != None else None)
-            else:
-                ranked_words_cnt[word].append(str(result[idx][rank]['cnt']) if rank != None else None)
-
-    x = np.arange(2016, 2025)
-
-    # Figure  생성
-    fig = go.Figure(layout=go.Layout(title=go.layout.Title(text="시대별 가사에 많이 나온 단어 변화(포크/블루스, 명사)")))
-    fig.update_layout(title_x = 0.5, title_y = 0.9, title_xanchor = "center", title_yanchor = "middle", title_font_size = 24)
-    fig.update_layout(height=800)
-    fig.update_layout(
-        yaxis = dict(autorange="reversed")
-    )
-
-    fig.update_layout(
-        yaxis = dict(
-            tickmode = 'array',
-            tickvals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            ticktext = ['1위', '2위', '3위', '4위', '5위', '6위', '7위', '8위', '9위', '10위']
-        )
-    )
-    fig.update_xaxes(title_text='노래의 발매 연도')
-    fig.update_yaxes(title_text='많이 나온 단어 순위')
-
-    fig.update_layout(
-        font=dict(size=12),
-        legend=dict(font=dict(size = 16))
-    )
-
-    # Line Trace 추가
-    for word in ranked_words.keys():
-        fig.add_trace(go.Scatter(x=x, y=ranked_words[word], name=word,
-                                mode='lines+markers+text', line_shape='spline',
-                                text=ranked_words_cnt[word], textposition='top center'))
-
-    # Generage the HTML for the plot
-    folk = pio.to_html(fig, full_html=False)
-
-    return render_template('q2.html', plot_html1=ballad, plot_html2=dance, plot_html3=hiphop, plot_html4=rb, plot_html5=indie, plot_html6=folk)
+    return render_template('q2.html', plot_html=plot_html)
 
 @app.route("/q3")
 def q3():

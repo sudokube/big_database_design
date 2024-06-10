@@ -6,6 +6,7 @@
         <title>한국 음악 데이터 분석</title>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
+        <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,700&amp;display=swap" rel="stylesheet">
     </head>
 
     <body>
@@ -15,10 +16,10 @@
 
         <div id="chart">{{ plot_html1 | safe }}</div>
         <div id="chart">{{ plot_html2 | safe }}</div>
-        <div id="chart">{{ plot_html3 | safe }}</div>
+        <div id="chart" style="margin-bottom: 40px;">{{ plot_html3 | safe }}</div>
 
         <div class="navbar">
-            <a href="/q2">Q2: 시대에 따른 장르별 가사 변화</a>
+            <a href="/q2?genre=GN0100">Q2: 시대에 따른 장르별 가사 변화</a>
             <a href="/">목록</a>
             <a href="/q4">Q4: 솔로 / 듀오 / 그룹 가수 형태에 따른 노래 비율</a>
         </div>

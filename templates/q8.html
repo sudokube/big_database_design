@@ -6,6 +6,7 @@
         <title>시대별 가사에서 많이 나오는 단어</title>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
+        <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,700&amp;display=swap" rel="stylesheet">
     </head>
 
     <body>
@@ -13,7 +14,7 @@
             <h1>유명 소속사가 음악 시장에서 차지하는 비율 (곡 수)</h1>
         </main>
 
-        <div id="pie-chart">{{ plot_html | safe }}</div>
+        <div id="pie-chart" style="margin-bottom: 40px;">{{ plot_html | safe }}</div>
 
         <div class="navbar">
             <a href="/q7">Q7: 유명 소속사 / 무명 소속사 좋아요 비율</a>
