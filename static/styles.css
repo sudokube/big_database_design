@@ -55,3 +55,11 @@ h1 {
 .genre-menu a:hover {
     background-color: #ddd;
 }
+
+.wordcloud-warp {
+    display: flex;
+    align-self: center;
+    gap: 30px;
+    margin-bottom: 20px;
+    margin-bottom: 120px;
+}

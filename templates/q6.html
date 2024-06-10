@@ -16,10 +16,12 @@
 
         <div id="chart">{{ plot_html | safe }}</div>
 
-        <div class="wordcloud">
+        <div class="wordcloud-warp">
             {% for image in wordcloud %}
+            <div>
                 <img src="{{ image }}" alt="Word Cloud {{ loop.index }}" class="wordcloud">
                 <div>{{ image }}</div>
+            </div>
             {% endfor %}
         </div>
 
