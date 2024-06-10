@@ -7,6 +7,7 @@ from pymongo import MongoClient
 from pipeline import query_1, query_2, query_3age, query_3year, query_3genre, query_4, query_5genre, query_5year, query_6, query_7, query_8, query_9
 from wordcloud import WordCloud
 import pandas as pd
+import plotly.colors as colors
 
 # MongoDB 서버에 연결
 client = MongoClient('mongodb://localhost:27017/')
@@ -552,8 +553,8 @@ def q3():
 
     # 레이아웃 설정
     layout = go.Layout(
-        title='Stacked Bar Chart by Year',
-        xaxis=dict(title='Year'),
+        title='Stacked Bar Chart by Age',
+        xaxis=dict(title='Age'),
         yaxis=dict(title='Values', range=[0, 1]),  # y축 범위 설정
         barmode='stack'  # 스택 모드로 설정하여 스택 막대 그래프 생성
     )
@@ -611,11 +612,26 @@ def q3():
     DIVENG = [item['DIVENG'] for item in data]
     DIVOTR = [item['DIVOTHER'] for item in data]
 
+    newY= []
+    for g in Genre:
+        if g == 'GN0400':
+            newY.append('R&B/Soul')
+        elif g == 'GN0100':
+            newY.append('Ballad')
+        elif g == 'GN0200' :
+            newY.append('Dance')
+        elif g == 'GN0300':
+            newY.append('Hiphop')
+        elif g == 'GN0800':
+            newY.append('Fork/Buls')
+        elif g == 'GN0500':
+            newY.append('Indie')
+
     traces = []
 
     # 각 DIV 항목에 대한 막대 그래프 생성
     traces.append(go.Bar(
-        x=Genre,
+        x=newY,
         y=DIVKOR,
         name='DIVKOR',
         marker_color='pink',
@@ -623,7 +639,7 @@ def q3():
         textposition = 'outside'
     ))
     traces.append(go.Bar(
-        x=Genre,
+        x=newY,
         y=DIVENG,
         name='DIVENG',
         marker_color='skyblue',
@@ -631,7 +647,7 @@ def q3():
         textposition = 'outside'
     ))
     traces.append(go.Bar(
-        x=Genre,
+        x=newY,
         y=DIVOTR,
         name='DIVOTR',
         marker_color='green',
@@ -640,12 +656,11 @@ def q3():
     ))
 
     layout = go.Layout(
-        title='Box Plots by Genre for DIVKOR, DIVENG, and DIVOTR',
-        xaxis=dict(title='Genre-Division'),
+        title='Box Plots by Genre for Rate of KOR, ENG, OTHER',
+        xaxis=dict(title='Genre'),
         yaxis=dict(title='Values'),
         boxmode='group'  # 그룹화하여 박스플롯 표시
     )
-
     fig = go.Figure(data=traces, layout=layout)
 
     # Generage the HTML for the plot
@@ -664,9 +679,19 @@ def q4():
     Genre = [ item['Genre'] for item in data]
     Prop = [item['Proportion'] for item in data]
 
-    import plotly.graph_objs as go
-    import plotly.offline as pyo
-    import plotly.colors as colors
+    def ReturnGenre(g):
+        if g == 'GN0400':
+            return 'R&B/Soul'
+        elif g == 'GN0100':
+            return 'Ballad'
+        elif g == 'GN0200' :
+            return 'Dance'
+        elif g == 'GN0300':
+            return 'Hiphop'
+        elif g == 'GN0800':
+            return 'Fork/Buls'
+        elif g == 'GN0500':
+            return 'Indie'
 
     # 데이터를 Genre 기준으로 정렬
     sorted_data = sorted(zip(Genre, Type, Prop), key=lambda x: x[0])
@@ -674,6 +699,7 @@ def q4():
 
     unique_genres = list(set(Genre))
     unique_types = list(set(Type))
+    #unique_genders = list(set(Gender))
 
     # 각 Genre에 대해 색상 지정
     color_scale = colors.qualitative.Plotly
@@ -690,16 +716,22 @@ def q4():
             text = []
             for i in range(len(Genre)):
                 if Genre[i] == genre and Type[i] == type_:
-                    x.append(f"{type_}")
+
+                    if type_ == 1:
+                        x.append("Group")
+                    else:
+                        x.append("Solo")
+                    #x.append(f"{type_}")
                     y.append(Prop[i])
                     text.append(Prop[i])
                     break  # 해당 조합의 첫 번째 항목만 필요하므로 break
             if x and y:
-                traces.append(go.Bar(name=f"{genre} - {type_}", x=x, y=y, marker_color=genre_color_map[genre], text=text, texttemplate='%{text:.3f}', textposition='outside'))
+
+                traces.append(go.Bar(name=f"{ReturnGenre(genre)}", x=x, y=y, marker_color=genre_color_map[genre], text=text, texttemplate='%{text:.3f}', textposition='outside'))
 
     layout = go.Layout(
         title='Grouped Bar Chart by Genre, Type, and Gender',
-        xaxis=dict(title='Type_Gender'),
+        xaxis=dict(title='Type'),
         yaxis=dict(title='Proportion'),
         barmode='group'
     )
@@ -723,21 +755,36 @@ def q5():
     AVGUWC = [item['MEN_uniqe_word'] for item in data]
     AVGLine = [item['MEN_Line'] for item in data]
 
+    newY= []
+    for g in Genre:
+        if g == 'GN0400':
+            newY.append('R&B/Soul')
+        elif g == 'GN0100':
+            newY.append('Ballad')
+        elif g == 'GN0200' :
+            newY.append('Dance')
+        elif g == 'GN0300':
+            newY.append('Hiphop')
+        elif g == 'GN0800':
+            newY.append('Fork/Buls')
+        elif g == 'GN0500':
+            newY.append('Indie')
+
     traces = []
 
     # 스택 막대 그래프 설정
-    trace1 = go.Bar(x=Genre, y=AVGWC, name='AVGWC', marker_color='#FA8072', text=[f'{val}' for val in AVGWC], textposition='outside',
+    trace1 = go.Bar(x=newY, y=AVGWC, name='AVGWC', marker_color='#FA8072', text=[f'{val}' for val in AVGWC], textposition='outside',
                     textfont=dict(color='black', size=15, family='Arial, sans-serif'))
-    trace2 = go.Bar(x=Genre, y=AVGUWC, name='AVGUWC', marker_color='skyblue', text=[f'{val}' for val in AVGUWC], textposition='outside',
+    trace2 = go.Bar(x=newY, y=AVGUWC, name='AVGUWC', marker_color='skyblue', text=[f'{val}' for val in AVGUWC], textposition='outside',
                     textfont=dict(color='black', size=15, family='Arial, sans-serif'))
-    trace3 = go.Bar(x=Genre, y=AVGLine, name='AVGLine', marker_color='green', text=[f'{val}' for val in AVGLine], textposition='outside',
+    trace3 = go.Bar(x=newY, y=AVGLine, name='AVGLine', marker_color='green', text=[f'{val}' for val in AVGLine], textposition='outside',
                     textfont=dict(color='black', size=15, family='Arial, sans-serif'))
 
     # 레이아웃 설정
     layout = go.Layout(
         title='Stacked Bar Chart by Year',
         xaxis=dict(title='Year'),
-        yaxis=dict(title='Values'),  # y축 범위 설정
+        yaxis=dict(title='Values(Num)'),  # y축 범위 설정
     )
 
     # Figure 생성
@@ -762,18 +809,18 @@ def q5():
     traces = []
 
     # 스택 막대 그래프 설정
-    trace1 = go.Bar(x=Year, y=AVGWC, name='DIVKOR', marker_color='#FA8072', text=[f'{val}' for val in AVGWC], textposition='outside',
+    trace1 = go.Bar(x=Year, y=AVGWC, name='KOR', marker_color='#FA8072', text=[f'{val}' for val in AVGWC], textposition='outside',
                     textfont=dict(color='black', size=30, family='Arial, sans-serif'))
-    trace2 = go.Bar(x=Year, y=AVGUWC, name='DIVENG', marker_color='skyblue', text=[f'{val}' for val in AVGUWC], textposition='outside',
+    trace2 = go.Bar(x=Year, y=AVGUWC, name='ENG', marker_color='skyblue', text=[f'{val}' for val in AVGUWC], textposition='outside',
                     textfont=dict(color='black', size=30, family='Arial, sans-serif'))
-    trace3 = go.Bar(x=Year, y=AVGLine, name='DIVOTR', marker_color='green', text=[f'{val}' for val in AVGLine], textposition='outside',
+    trace3 = go.Bar(x=Year, y=AVGLine, name='OTHER', marker_color='green', text=[f'{val}' for val in AVGLine], textposition='outside',
                     textfont=dict(color='black', size=30, family='Arial, sans-serif'))
 
     # 레이아웃 설정
     layout = go.Layout(
         title='Stacked Bar Chart by Year',
         xaxis=dict(title='Year'),
-        yaxis=dict(title='Values'),  # y축 범위 설정
+        yaxis=dict(title='Values(num)'),  # y축 범위 설정
     )
 
     # Figure 생성
